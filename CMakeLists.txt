@@ -8,6 +8,8 @@ set( Evolution_SOURCES
 	INode.h
 	Nodes.h
 	Nodes.cpp
+	ParseTree.h
+	ParseTree.cpp
 	Variant.h
 	Variant.cpp
 	main.cpp

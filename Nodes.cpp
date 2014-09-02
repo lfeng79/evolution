@@ -1,5 +1,4 @@
 #include "Nodes.h"
-#include <map>
 #include <stdexcept>
 
 namespace Evolution
@@ -12,39 +11,48 @@ namespace Evolution
 			return 0;
 	}
 
-	static std::map<const std::string, ExpressionFunction> BuiltinExpressionFunctions;
+	std::vector<ExpressionFunction> BuiltinExpressionFunctions;
 
 	//TODO: improve it by initializer lists
-	bool InitBuiltinExpressionFunctions(std::map<const std::string, ExpressionFunction>& builtinExpressionFunctions)
+	bool InitBuiltinExpressionFunctions(std::vector<ExpressionFunction>& builtinExpressionFunctions)
 	{
-		builtinExpressionFunctions["Add"] = [](const std::vector<Variant>& parameters){ return parameters[0] + parameters[1]; };
-		builtinExpressionFunctions["Subtract"] = [](const std::vector<Variant>& parameters){ return parameters[0] - parameters[1]; };
-		builtinExpressionFunctions["Multiply"] = [](const std::vector<Variant>& parameters){ return parameters[0] * parameters[1]; };
-		builtinExpressionFunctions["Divide"] = [](const std::vector<Variant>& parameters){ return parameters[0] / parameters[1]; };
-		builtinExpressionFunctions["IfElse"] = [](const std::vector<Variant>& parameters){ if(parameters[0] > 0) return parameters[1]; else return parameters[2]; };
-		builtinExpressionFunctions["IsGreater"] = IsGreaterFunc;
+		builtinExpressionFunctions.push_back( ExpressionFunction( "Add", 2, [](const std::vector<Variant>& parameters){ return parameters[0] + parameters[1]; } ) );
+		builtinExpressionFunctions.push_back( ExpressionFunction( "Subtract", 2, [](const std::vector<Variant>& parameters){ return parameters[0] - parameters[1]; } ) );
+		builtinExpressionFunctions.push_back( ExpressionFunction( "Multiply", 2, [](const std::vector<Variant>& parameters){ return parameters[0] * parameters[1]; } ) );
+		builtinExpressionFunctions.push_back( ExpressionFunction( "Divide", 2, [](const std::vector<Variant>& parameters){ return parameters[0] / parameters[1]; } ) );
+		builtinExpressionFunctions.push_back( ExpressionFunction( "IfElse", 3, [](const std::vector<Variant>& parameters){ if(parameters[0] > 0) return parameters[1]; else return parameters[2]; } ) );
+		builtinExpressionFunctions.push_back( ExpressionFunction( "IsGreater", 2, IsGreaterFunc ) );
 
 		return true;
 	}
 	static bool builtinfuctionInitialized = InitBuiltinExpressionFunctions(BuiltinExpressionFunctions);
 
-	ExpressionNode::ExpressionNode(const std::string& name, const std::list<INode*>& children)
+	ExpressionNode::ExpressionNode(const std::string& functionName, const std::list<INode*>& children)
 	{
-		if( BuiltinExpressionFunctions.find(name) == BuiltinExpressionFunctions.end() )
-			throw std::runtime_error("Unable to find builtin function: " + name + ".");
+		int index = 0;
+		for(; index < BuiltinExpressionFunctions.size(); index++)
+		{
+			if(BuiltinExpressionFunctions[index].Name() == functionName)
+				break;
+		}
+		if(index == BuiltinExpressionFunctions.size())
+			throw std::runtime_error("Unable to find builtin function named: " + functionName + ".");
 
-		m_name = name;
-		m_function = BuiltinExpressionFunctions[name];
+		m_function = BuiltinExpressionFunctions[index];
+
+		if(m_function.ParamCount() != children.size())
+			throw std::runtime_error("The children count does not match the parameter count required by function: " + m_function.Name() + ".");
+
 		m_children = children;
 	}
 
-	ExpressionNode::ExpressionNode(const std::string& name, const ExpressionFunction& function, const std::list<INode*>& children)
+	ExpressionNode::ExpressionNode(const ExpressionFunction& function, const std::list<INode*>& children)
 	{
-		if( BuiltinExpressionFunctions.find(name) != BuiltinExpressionFunctions.end() )
-			throw std::runtime_error("Function '" + name + "' already registered as a builtin function.");
-
-		m_name = name;
 		m_function = function;
+
+		if(m_function.ParamCount() != children.size())
+			throw std::runtime_error("The children count does not match the parameter count required by function: " + function.Name() + ".");
+
 		m_children = children;
 	}
 
