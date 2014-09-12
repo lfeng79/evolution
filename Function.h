@@ -16,16 +16,16 @@ namespace Evolution
 			m_name(name), m_paramCount(paramCount), m_imp(imp) {}
 
 		Function(const Function& function) :
-			m_name( function.Name() ), m_paramCount( function.ParamCount() ), m_imp( function.Imp() ) {}
+			m_name( function.m_name ), m_paramCount( function.m_paramCount ), m_imp( function.m_imp ) {}
 
 		Function& operator=(const Function& function)
 		{
 			if(this == &function)
 				return *this;
 				
-			m_name = function.Name();
-			m_paramCount = function.ParamCount();
-			m_imp = function.Imp();
+			m_name = function.m_name;
+			m_paramCount = function.m_paramCount;
+			m_imp = function.m_imp;
 
 			return *this;
 		}
@@ -37,7 +37,6 @@ namespace Evolution
 
 		std::string Name() const { return m_name; }
 		unsigned int ParamCount() const { return m_paramCount; }
-		FunctionImp Imp() const { return m_imp; }
 
 	private:
 		std::string m_name;

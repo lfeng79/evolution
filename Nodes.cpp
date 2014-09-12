@@ -13,6 +13,14 @@ namespace Evolution
 		m_children = children;
 	}
 
+	ExpressionNode::~ExpressionNode()
+	{
+		for (std::list<INode*>::iterator it = m_children.begin(); it != m_children.end(); it++)
+		{
+			delete (*it);
+		}
+	}
+
 	Variant ExpressionNode::evaluate(const std::vector<Variant>& parameters)
 	{
 		std::vector<Variant> results;
