@@ -1,5 +1,4 @@
 #pragma once
-
 #include "INode.h"
 
 namespace Evolution

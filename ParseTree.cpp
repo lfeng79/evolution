@@ -23,7 +23,7 @@ namespace Evolution
 
 		if(dRandom < fpr && maxDepth > 0)
 		{
-			ExpressionFunction function = BuiltinExpressionFunctions.at( rand() % BuiltinExpressionFunctions.size() );
+			Function function = BuiltinFunctions.at( rand() % BuiltinFunctions.size() );
 			std::list<INode*> children;
 			for(unsigned int i = 0; i < function.ParamCount(); i++)
 			{
