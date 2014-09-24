@@ -79,19 +79,62 @@ namespace Evolution
 		return result;
 	}
 
-	INode* ParseTree::crossover(INode* t1, INode* t2, double probswap, unsigned int top)
+	template<typename T>
+	static T listAt(const std::list<T> list, unsigned int index)
 	{
+		unsigned int i = 0;
+		T result;
+		for(std::list<T>::const_iterator it = list.begin(); it != list.end(); it++)
+		{
+			if(i == index)
+			{
+				result = *it;
+				break;
+			}
+			i++;
+		}
 
-		/*def crossover(t1,t2,probswap=0.7,top=1):
-			if random( )<probswap and not top:
-			return deepcopy(t2)
-			else:
-			result=deepcopy(t1)
-			if isinstance(t1,node) and isinstance(t2,node):
-			result.children=[crossover(c,choice(t2.children),probswap,0)
-			for c in t1.children]
-			return result*/
+		if(i < index)
+			result = *(list.end());
 
-		return nullptr;
+		return result;
+	}
+
+	INode* ParseTree::crossover(const INode* t1, const INode* t2, double probswap, bool isTop)
+	{
+		INode* result = nullptr;
+		double dRandom = static_cast<double>( rand() ) / RAND_MAX;
+
+		if(dRandom < probswap && !isTop)
+		{
+			result = clone(t2);
+		}
+		else
+		{
+			if(typeid(*t1) == typeid(ExpressionNode) && typeid(*t2) == typeid(ExpressionNode))
+			{
+				const ExpressionNode* expNode1 = static_cast<const ExpressionNode*>(t1);
+				Function function = expNode1->ExpFunction();
+				std::list<INode*> children;
+				for(std::list<INode*>::const_iterator it1 = expNode1->Children().begin(); it1 != expNode1->Children().end(); it1++)
+				{
+					const ExpressionNode* expNode2 = static_cast<const ExpressionNode*>(t2);
+					children.push_back( crossover(*it1, listAt( expNode2->Children(), rand() % expNode2->Children().size() ), probswap, false) );
+				}
+				
+				result = new ExpressionNode(function, children);
+			}
+			else
+			{
+				result = clone(t1);
+			}
+		}
+
+		return result;
+	}
+
+	INode* ParseTree::clone(const INode* t)
+	{
+		return mutate(t, 0, 0);
 	}
 }

@@ -8,5 +8,6 @@ namespace Evolution
 	{
 	public:
 		virtual Variant evaluate(const std::vector<Variant>& parameters) = 0;
+		virtual ~INode() {}
 	};
 }
